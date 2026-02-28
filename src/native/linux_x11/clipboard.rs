@@ -145,7 +145,7 @@ unsafe fn claim_clipboard_ownership(
         CurrentTime as Time,
     );
 
-    MESSAGE = Some(message);
+    *std::ptr::addr_of_mut!(MESSAGE) = Some(message);
 }
 
 /// this function is supposed to be called from sapp's event loop
@@ -159,7 +159,7 @@ pub(crate) unsafe fn respond_to_clipboard_request(
     assert!((*event).type_0 == SelectionRequest); // is it really SelectionRequest
 
     let empty_message = String::new();
-    let message = MESSAGE.as_ref().unwrap_or(&empty_message);
+    let message = (*std::ptr::addr_of!(MESSAGE)).as_ref().unwrap_or(&empty_message);
 
     let utf8_string = libx11.extensions.utf8_string;
     let targets_atom = libx11.extensions.targets;

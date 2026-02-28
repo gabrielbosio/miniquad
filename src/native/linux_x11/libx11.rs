@@ -856,6 +856,7 @@ declare_atoms!(
     net_wm_icon: "_NET_WM_ICON",
     cardinal: "CARDINAL",
     // clipboard
+    targets: "TARGETS",
     clipboard: "CLIPBOARD",
     xsel_data: "XSEL_DATA",
     incr: "INCR",

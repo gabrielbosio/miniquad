@@ -282,8 +282,11 @@ pub mod window {
 
     /// Save value to OS clipboard
     pub fn clipboard_set(data: &str) {
+        if data.is_empty() {
+            return;
+        }
         let mut d = native_display().lock().unwrap();
-        d.clipboard.set(data)
+        d.clipboard.set(data);
     }
     pub fn dropped_file_count() -> usize {
         let d = native_display().lock().unwrap();
