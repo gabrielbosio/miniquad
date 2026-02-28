@@ -162,6 +162,7 @@ pub(crate) unsafe fn respond_to_clipboard_request(
     let message = MESSAGE.as_ref().unwrap_or(&empty_message);
 
     let utf8_string = libx11.extensions.utf8_string;
+    let targets_atom = libx11.extensions.targets;
     let xselectionrequest = (*event).xselectionrequest;
     let mut ev = XSelectionEvent {
         type_0: SelectionNotify,
@@ -175,8 +176,27 @@ pub(crate) unsafe fn respond_to_clipboard_request(
         time: xselectionrequest.time,
     };
 
-    // only UTF8 requests are supported
-    if xselectionrequest.target == utf8_string {
+    if xselectionrequest.target == targets_atom {
+        let supported: [Atom; 2] = [targets_atom, utf8_string];
+        (libx11.XChangeProperty)(
+            xselectionrequest.display,
+            xselectionrequest.requestor,
+            xselectionrequest.property,
+            4, // XA_ATOM
+            32 as libc::c_int,
+            PropModeReplace,
+            supported.as_ptr() as *const _,
+            supported.len() as _,
+        );
+
+        (libx11.XSendEvent)(
+            display,
+            ev.requestor,
+            false as _,
+            NoEventMask,
+            &mut ev as *mut XSelectionEvent as *mut XEvent,
+        );
+    } else if xselectionrequest.target == utf8_string {
         (libx11.XChangeProperty)(
             xselectionrequest.display,
             xselectionrequest.requestor,
@@ -207,6 +227,8 @@ pub(crate) unsafe fn respond_to_clipboard_request(
             &mut ev as *mut XSelectionEvent as *mut XEvent,
         );
     }
+
+    (libx11.XFlush)(display);
 }
 
 pub struct X11Clipboard {
