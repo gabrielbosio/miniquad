@@ -855,6 +855,7 @@ declare_atoms!(
     net_wm_icon_name: "_NET_WM_ICON_NAME",
     net_wm_icon: "_NET_WM_ICON",
     cardinal: "CARDINAL",
+    net_active_window: "_NET_ACTIVE_WINDOW",
     // clipboard
     targets: "TARGETS",
     clipboard: "CLIPBOARD",

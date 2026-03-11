@@ -254,6 +254,30 @@ impl LibX11 {
     pub unsafe fn show_window(&mut self, display: *mut Display, window: Window) {
         (self.XMapWindow)(display, window);
         (self.XRaiseWindow)(display, window);
+
+        let root = (*(*(display as _XPrivDisplay))
+            .screens
+            .offset((*(display as _XPrivDisplay)).default_screen as isize))
+        .root;
+        let mut event = XClientMessageEvent {
+            type_0: ClientMessage,
+            serial: 0,
+            send_event: true as _,
+            display,
+            window,
+            message_type: self.extensions.net_active_window,
+            format: 32,
+            data: ClientMessageData {
+                l: [1, CurrentTime, 0, 0, 0],
+            },
+        };
+        (self.XSendEvent)(
+            display,
+            root,
+            false as _,
+            SubstructureRedirectMask | SubstructureNotifyMask,
+            &mut event as *mut XClientMessageEvent as *mut _,
+        );
         (self.XFlush)(display);
     }
 }
